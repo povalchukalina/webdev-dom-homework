@@ -74,7 +74,8 @@
     const buttonElement = document.getElementById("add-form-button");
     const commentElement = document.getElementById("comment");
     const nameInputElement = document.getElementById("name-input");
-    const commentInputElement = document.getElementById("comment-input")
+    const commentInputElement = document.getElementById("comment-input");
+    const answerElement = document.getElementById("answer");
     const newDate = new Date ()
 
 const listElement = document.getElementById('comments');
@@ -169,14 +170,23 @@ const renderComments = () => {
         }
 
     comments.push ({
-    name: nameInputElement.value,
+    name: nameInputElement.value.replaceAll("<", "&lt;").replaceAll(">", "&gt;"),
     date: newDate,
-    comment: commentInputElement.value,
+    comment: commentInputElement.value.replaceAll("<", "&lt;").replaceAll(">", "&gt;"),
     like: 0,
     isLiked: false
   });
 
   renderComments();
+  
+  const answerElements = document.querySelectorAll(".comment-text");
+  for (const answerElement of answerElements) {
+    answerElement.addEventListener ("click", () => {
+      document.getElementById('comment-input').value = '>' + answerElement.dataser.text;
+      })
+    }
+          
+
 
     document.getElementById('name-input').value = '';
     document.getElementById('comment-input').value = '';
