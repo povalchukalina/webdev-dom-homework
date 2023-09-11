@@ -9,13 +9,13 @@
   <body>
     <div class="container">
       <ul class="comments" id="comments">
-        <li class="comment">
+        <li class="comment" id="answer">
           <div class="comment-header">
             <div>Глеб Фокин</div>
             <div>12.02.22 12:18</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
+            <div class="comment-text" data-text="Это будет первый комментарий на этой странице">
               Это будет первый комментарий на этой странице
             </div>
           </div>
@@ -70,6 +70,7 @@
   }
 </style>  
 
+
   <script>
     const buttonElement = document.getElementById("add-form-button");
     const commentElement = document.getElementById("comment");
@@ -118,6 +119,8 @@ const initEventListeners = () => {
       });
     }
   };  
+
+
 const renderComments = () => {
   const commentsHtml = comments.map((comment, index) => {
     return `<li class="comment">
@@ -126,7 +129,7 @@ const renderComments = () => {
             <div> ${comment.date}</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
+            <div class="comment-text" data-text="${comment.comment}">
               ${comment.comment}
             </div>
           </div>
@@ -152,7 +155,17 @@ const renderComments = () => {
 
 
   initEventListeners();
-  renderComments();
+  //renderComments();
+
+  const answerElements = document.querySelectorAll(".comment-text");
+  
+
+  for (const answerElement of answerElements) {
+    answerElement.addEventListener ("click", () => {
+      console.log("click")
+      document.getElementById('comment-input').value = '>' + answerElement.dataset.text;
+      })
+    }
 
 
     buttonElement.addEventListener("click", () => {
@@ -169,6 +182,7 @@ const renderComments = () => {
           return;
         }
 
+
     comments.push ({
     name: nameInputElement.value.replaceAll("<", "&lt;").replaceAll(">", "&gt;"),
     date: newDate,
@@ -176,18 +190,9 @@ const renderComments = () => {
     like: 0,
     isLiked: false
   });
-
-  renderComments();
+    
+    renderComments();
   
-  const answerElements = document.querySelectorAll(".comment-text");
-  for (const answerElement of answerElements) {
-    answerElement.addEventListener ("click", () => {
-      document.getElementById('comment-input').value = '>' + answerElement.dataser.text;
-      })
-    }
-          
-
-
     document.getElementById('name-input').value = '';
     document.getElementById('comment-input').value = '';
 
