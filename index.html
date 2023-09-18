@@ -8,10 +8,12 @@
 
   <body>
     <div class="container">
-      <ul class="comments" id="comments">
+      <ul class="comments" id="comment">
         <li class="comment" id="answer">
           <div class="comment-header">
-            <div>Глеб Фокин</div>
+            <div class="comment-name" data-name="Глеб Фокин">
+              Глеб Фокин
+            </div>
             <div>12.02.22 12:18</div>
           </div>
           <div class="comment-body">
@@ -26,13 +28,15 @@
             </div>
           </div>
         </li>
-        <li class="comment">
+        <li class="comment" id="answer">
           <div class="comment-header">
-            <div>Варвара Н.</div>
+            <div class="comment-name" data-name="Варвара Н.">
+              Варвара Н.
+            </div>
             <div>13.02.22 19:22</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
+            <div class="comment-text" data-text= "Мне нравится как оформлена эта страница! ❤ ">
               Мне нравится как оформлена эта страница! ❤
             </div>
           </div>
@@ -73,13 +77,42 @@
 
   <script>
     const buttonElement = document.getElementById("add-form-button");
-    const commentElement = document.getElementById("comment");
+    const commentElement = document.getElementById("comments");
     const nameInputElement = document.getElementById("name-input");
     const commentInputElement = document.getElementById("comment-input");
-    const answerElement = document.getElementById("answer");
+    //const answerElement = document.getElementById("answer");
     const newDate = new Date ()
+    const listElement = document.getElementById('comment');
 
-const listElement = document.getElementById('comments');
+const fetchPromise = () =>
+  fetch ('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
+    method: "GET",
+  }).then((response) => {
+response.json().then((responseData) => {
+      console.log(responseData);
+    const appComments = responseData.comments.map((comment) => {
+      let timestamp = new Date(comment.date);
+      let period = `${timestamp.toLocaleDateString()} ${timestamp
+        .toLocaleTimeString()
+        .slice(0,-3)}`;
+      return {
+        id:comment.author.id,
+        name:comment.author.name
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;"),
+        date: period,
+        text: comment.text
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;"),
+        like:  comment.likes,
+        isLike: comment.isLike,  
+      };
+    }); 
+    comment = appComments;
+    renderComments();
+    });
+  });
+
 
 const comments = [
   {
@@ -157,8 +190,20 @@ const renderComments = () => {
   initEventListeners();
   //renderComments();
 
-  const answerElements = document.querySelectorAll(".comment-text");
-  
+  /* const commentsElements = document.getElementById(".comments");
+
+  for (const commentsElement of commentsElements) {
+    commentsElement.addEventListener("click", () => {
+      textInputElement.value = `"${commentsElement.dataset.name} ${commentsElement.dataset.comment}",`;
+    });
+  }
+  */
+
+
+
+
+
+  /*const answerElements = document.querySelectorAll(".comment-text");
 
   for (const answerElement of answerElements) {
     answerElement.addEventListener ("click", () => {
@@ -166,7 +211,7 @@ const renderComments = () => {
       document.getElementById('comment-input').value = '>' + answerElement.dataset.text;
       })
     }
-
+*/
 
     buttonElement.addEventListener("click", () => {
 
@@ -197,6 +242,17 @@ const renderComments = () => {
     document.getElementById('comment-input').value = '';
 
       });
+    fetch("https://wedev-api.sky.pro/api/v1/alina-povalchuk/comments", {
+      method: "POST",
+      body: JSON.stringify({
+        name: nameInputElement.value,
+        comment: commentInputElement.value,
+      }),
+    }).then(()=> {
+      fetchPromise();
+    });
+    
+
 
   </script>
 </html>
