@@ -9,9 +9,11 @@
 
 <body>
   <div class="container">
+    <p id="loader">Комментарии загружаются..</p>
     <ul class="comments" id="list">
     </ul>
-    <div class="add-form">
+    <p id="loader_form">Коментарий загружается</p>
+    <div class="add-form" id="add-form">
       <input type="text" class="add-form-name" placeholder="Введите ваше имя" id="name-input" />
       <textarea type="textarea" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"
         id="comment-input"></textarea>
@@ -35,61 +37,71 @@
   const commentInputElement = document.getElementById('comment-input');
   const newDate = new Date();
   const answerElement = document.getElementById('');
-
+  const loader = document.getElementById('loader');
+  const loaderForm = document.getElementById('loader_form');
+  const addForm = document.getElementById('add-form');
+  loaderForm.style.display = "none";
 
   //const commentElements=document.getElementById('');
 
-  
-  
+  buttonElement.disabled = true;
+  buttonElement.textContent = 'Элемент добавляется...';
+
   // Запрос в API
   const fetchPromise = () =>
-  fetch ('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
+    fetch('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
       method: "GET",
     }).then((response) => {
-  response.json().then((responseData) => {
-        console.log(responseData);
+      return response.json()
+    }).then((responseData) => {
+      console.log(responseData);
       const appComments = responseData.comments.map((comment) => {
         let timestamp = new Date(comment.date);
         let period = `${timestamp.toLocaleDateString()} ${timestamp
           .toLocaleTimeString()
-          .slice(0,-3)}`;
+          .slice(0, -3)}`;
         return {
-          id:comment.author.id,
-          name:comment.author.name
+          id: comment.author.id,
+          name: comment.author.name
             .replaceAll("<", "&lt;")
             .replaceAll(">", "&gt;"),
           date: period,
           comment: comment.text
             .replaceAll("<", "&lt;")
             .replaceAll(">", "&gt;"),
-          like:  comment.likes,
-          isLike: comment.isLike,  
+          like: comment.likes,
+          isLike: comment.isLike,
         };
-      }); 
-      comments = appComments;
-      renderComments();
       });
-    });
-  
-  
+      
+      comments = appComments;
+      return renderComments();
+    }).then (() => {
+      loader.style.display = "none";
+      addForm.style.display = "flex";
+      loaderForm.style.display = "none";
+    })
+  buttonElement.disabled = false;
+  buttonElement.textContent = 'Написать';
+
 
 
   let comments = [
-   /* {
-      name: 'Глеб Фокин',
-      date: '12.02.22 22:18',
-      comment: 'Это будет первый комментарий на этой странице',
-      like: 3,
-      isLiked: false,
-    },
-    {
-      name: 'Варвара Н.',
-      date: '13.02.22 19:22',
-      comment: 'Мне нравится как оформлена эта страница!',
-      like: 75,
-      isLiked: true,
-    },
-    */
+    /* {
+       name: 'Глеб Фокин',
+       date: '12.02.22 22:18',
+       comment: 'Это будет первый комментарий на этой странице',
+       like: 3,
+       isLiked: false,
+     },
+     {
+       name: 'Варвара Н.',
+       date: '13.02.22 19:22',
+       comment: 'Мне нравится как оформлена эта страница!',
+       like: 75,
+       isLiked: true,
+     },
+     */
   ];
 
   const initEventListeners = () => {
@@ -192,15 +204,18 @@
       commentInputElement.classList.add("error");
       return;
     }
+    addForm.style.display = "none";
+    loaderForm.style.display = "flex";
+
     fetch("https://wedev-api.sky.pro/api/v1/alina-povalchuk/comments", {
-        method: "POST",
-        body: JSON.stringify({
-          name: nameInputElement.value,
-          text: commentInputElement.value,
-        }),
-      }).then(()=> {
-        fetchPromise();
-      });
+      method: "POST",
+      body: JSON.stringify({
+        name: nameInputElement.value,
+        text: commentInputElement.value,
+      }),
+    }).then(() => {
+      fetchPromise();
+    });
 
     /*comments.push({
       name: nameInputElement.value.replaceAll("<", "&lt;").replaceAll(">", "&gt;"),
@@ -216,9 +231,9 @@
   });
 
 
-  
-  
-  
+
+
+
 
 
 
