@@ -52,7 +52,15 @@
     fetch('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
       method: "GET",
     }).then((response) => {
-      return response.json()
+      if (response.status === 400) {
+        throw new Error('Неверный запрос')
+      }
+      if (response.status === 500) {
+        throw new Error('Ошибка сервера')
+      }
+      if (response.status === 201) {
+        return response.json();
+      }
     }).then((responseData) => {
       console.log(responseData);
       const appComments = responseData.comments.map((comment) => {
@@ -73,14 +81,28 @@
           isLike: comment.isLike,
         };
       });
-      
       comments = appComments;
       return renderComments();
-    }).then (() => {
+    }).then(() => {
       loader.style.display = "none";
       addForm.style.display = "flex";
       loaderForm.style.display = "none";
-    })
+    }).catch((error) => {
+        console.warn(error);
+        if (error.message === "Неверный запрос") {
+          alert('Короткое имя или текст комментария, минимум 3 символа')
+        }
+        if (error.message === "Ошибка сервера") {
+          alert('Сломался сервер , попробуйте позже')
+          postComment()
+        }
+        if (window.navigator.onLine === false) {
+          alert('Проблемы с интернетом, проверьте подключение')
+        }
+        buttonElement.disabled = false;
+        buttonElement.textContent = 'Написать';
+      });
+
   buttonElement.disabled = false;
   buttonElement.textContent = 'Написать';
 
