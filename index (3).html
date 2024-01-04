@@ -29,7 +29,9 @@
     background-color: red;
   }
 </style>
-<script>
+<script type="module" src="main.js">
+  import { getTodos } from "./api.js";
+
   "use strict";
   const buttonElement = document.getElementById('add-button');
   const listElement = document.getElementById('list');
@@ -48,6 +50,15 @@
   buttonElement.textContent = 'Элемент добавляется...';
 
   // Запрос в API
+const fetchAndRenderTasks = ()=>{
+  getTodos.then.((responseData)=>{
+    tasks=responseData.todos;
+    renderTasks();
+  })
+}
+
+
+
   const fetchPromise = () =>
     fetch('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
       method: "GET",
@@ -251,29 +262,6 @@
     document.getElementById('name-input').value = '';
     document.getElementById('comment-input').value = '';
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   // Код писать здесь
