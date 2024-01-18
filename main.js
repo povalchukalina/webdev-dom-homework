@@ -1,9 +1,10 @@
+import { getComments, postComment } from "./api.js";
+import {renderComments} from "./renderComments.js";
+
+
 const buttonElement = document.getElementById('add-button');
-const listElement = document.getElementById('list');
 const nameInputElement = document.getElementById('name-input');
 const commentInputElement = document.getElementById('comment-input');
-const newDate = new Date();
-const answerElement = document.getElementById('');
 const loader = document.getElementById('loader');
 const loaderForm = document.getElementById('loader_form');
 const addForm = document.getElementById('add-form');
@@ -15,20 +16,17 @@ buttonElement.disabled = true;
 buttonElement.textContent = 'Элемент добавляется...';
 
 // Запрос в API
+/*const fetchAndRenderTasks = ()=>{
+getTodos.then.((responseData)=>{
+  tasks=responseData.todos;
+  renderTasks();
+})
+}*/
+
+
+
 const fetchPromise = () =>
-    fetch('https://wedev-api.sky.pro/api/v1/:alina-povalchuk/comments', {
-        method: "GET",
-    }).then((response) => {
-        if (response.status === 400) {
-            throw new Error('Неверный запрос')
-        }
-        if (response.status === 500) {
-            throw new Error('Ошибка сервера')
-        }
-        if (response.status === 200) {
-            return response.json();
-        }
-    }).then((responseData) => {
+    getComments().then((responseData) => {
         console.log(responseData);
         const appComments = responseData.comments.map((comment) => {
             let timestamp = new Date(comment.date);
@@ -75,90 +73,17 @@ buttonElement.textContent = 'Написать';
 
 
 
-let comments = [
-    /* {
-       name: 'Глеб Фокин',
-       date: '12.02.22 22:18',
-       comment: 'Это будет первый комментарий на этой странице',
-       like: 3,
-       isLiked: false,
-     },
-     {
-       name: 'Варвара Н.',
-       date: '13.02.22 19:22',
-       comment: 'Мне нравится как оформлена эта страница!',
-       like: 75,
-       isLiked: true,
-     },
-     */
-];
+export let comments = [];
+export const setComments = (newComments) => {
+    comments = newComments
 
-const initEventListeners = () => {
-    const likeButtonElements = document.querySelectorAll(".like-button");
-
-    for (const likeButtonElement of likeButtonElements) {
-        likeButtonElement.addEventListener("click", (e) => {
-            e.stopPropagation();
-            //index - номер объекта в массиве, полуаем из дата-атрибута кнопки на которую мы нажимаем
-            const index = likeButtonElement.dataset.index;
-            //в условии обращаемся к свойсву isLiked объекта, который мы получили из массива Comments по индексу
-            if (comments[index].isLiked) {
-                comments[index].isLiked = false;
-                comments[index].like--;
-            } else {
-                comments[index].isLiked = true;
-                comments[index].like++;
-            }
-            renderComments();
-        });
-    }
-};
-const initAnswerListeners = () => {
-    const answerElements = document.querySelectorAll(".comment");
-
-    for (const answerElement of answerElements) {
-        answerElement.addEventListener("click", () => {
-            const comment = comments[answerElement.dataset.index];
-
-            commentInputElement.value = '>' + `${comment.name}:\n ${comment.comment}`;
-
-        })
-    }
 };
 
-const renderComments = () => {
-    const commentsHtml = comments.map((comment, index) => {
-        return `<li class="comment" data-index="${index}">
-          <div class="comment-header">
-            <div> ${comment.name} </div>
-            <div> ${comment.date}</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text" data-text="${comment.comment}">
-              ${comment.comment}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">${comment.like}</span>
-              <button class="like-button ${comment.isLiked ? '-active-like' : ''}" data-index="${index}"></button>
-            </div>
-          </div>
-        </li>`
 
-
-    }).join("");
-
-    listElement.innerHTML = commentsHtml;
-
-    initEventListeners();
-    initAnswerListeners();
-};
 renderComments();
 
 const likeElements = document.querySelectorAll(".likes");
 
-initEventListeners();
 
 
 /*const answerElements = () => {
@@ -167,7 +92,7 @@ initEventListeners();
     for (const answerElement of answerElements) {
       answerElement.addEventListener("click", () => {
         const index = answerElement.dataset.index;
- 
+
         commentInputElement.value = 
         `>${commentTextElement[index].innerHTML} ${commentNameElement[index].innerHTML}`;
       })
@@ -196,13 +121,7 @@ buttonElement.addEventListener("click", () => {
     addForm.style.display = "none";
     loaderForm.style.display = "flex";
 
-    fetch("https://wedev-api.sky.pro/api/v1/alina-povalchuk/comments", {
-        method: "POST",
-        body: JSON.stringify({
-            name: nameInputElement.value,
-            text: commentInputElement.value,
-        }),
-    }).then(() => {
+    postComment({nameInputElement, commentInputElement}).then(() => {
         fetchPromise();
     });
 
@@ -218,7 +137,6 @@ buttonElement.addEventListener("click", () => {
     document.getElementById('name-input').value = '';
     document.getElementById('comment-input').value = '';
 });
-
 
 
 // Код писать здесь
